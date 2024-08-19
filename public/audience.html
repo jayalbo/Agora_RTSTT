@@ -55,6 +55,16 @@
                 ></div>
             </div>
             <div class="mb-3">
+                <label for="transcription2" class="form-label"
+                    >Transcription</label
+                >
+                <div
+                    id="transcription2"
+                    class="output"
+                    aria-label="Transcription"
+                ></div>
+            </div>
+            <div class="mb-3">
                 <label for="translation" class="form-label">Translation</label>
                 <div
                     id="translation"
@@ -81,6 +91,11 @@
         </div>
         <script>
             // Set the correct Labels
+            document.querySelector('label[for="transcription"]').innerText =
+                `Transcription → ${langInput[0]}`;
+            document.querySelector('label[for="transcription2"]').innerText =
+                `Transcription → ${langInput[1]}`;
+
             document.querySelector('label[for="translation"]').innerText =
                 `Translation → ${langOutput[0]}`;
             document.querySelector('label[for="translation2"]').innerText =
@@ -97,6 +112,7 @@
             let RTTToken = "";
             let taskId = "";
             let currentTranscriptionIdx = 0;
+            let currentTranscription2Idx = 0;
             let currentTranslationIdx = 0;
             let currentTranslation2Idx = 0;
 
@@ -120,6 +136,7 @@
 
                         // Add first line to the transcription & translation
                         addLine("transcription");
+                        addLine("transcription2");
                         addLine("translation");
                         addLine("translation2");
                     } catch (error) {
@@ -219,10 +236,11 @@
                 if (!isRTTEnabled) return;
                 const msg = $protobufRoot.lookup("Text").decode(data) || {};
 
-                const { words, dataType, trans = [], duration_ms, uid } = msg;
+                const { words, dataType, trans = [], culture, duration_ms, uid } = msg;
                 console.log("Message from user " + msgUid, msg);
                 if (dataType == "transcribe") {
-                    if (words.length) {
+                    /* This is the old transcription for 1 language
+                    if (length) {
                         let isFinal = false;
                         let text = "";
                         words.forEach((item) => {
@@ -238,6 +256,37 @@
                                 "transcription",
                             ).scrollHeight;
                         if (isFinal) addLine("transcription");
+                    } */
+                    if (words.length) {
+                        let isFinal = false;
+                        let text = "";
+                        if (culture == langInput[0]) {
+                            words.forEach((item) => {
+                                text += item;
+                            });
+                            if (words[0].isFinal) isFinal = true;
+                            document.querySelector(
+                                "#transcription_" + currentTranscriptionIdx,
+                            ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
+                            document.getElementById("transcription_").scrollTop =
+                                document.getElementById(
+                                    "transcription_",
+                                ).scrollHeight;
+                            if (isFinal) addLine("transcription_");
+                        } else {
+                            words.forEach((item) => {
+                                text += item;
+                            });
+                            if (words[0].isFinal) isFinal = true;
+                            document.querySelector(
+                                "#transcription2_" + currentTranscription2Idx,
+                            ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
+                            document.getElementById("transcription2").scrollTop =
+                                document.getElementById(
+                                    "transcription2",
+                                ).scrollHeight;
+                            if (isFinal) addLine("transcription2_");
+                        }
                     }
                 } else if (dataType == "translate") {
                     if (trans[0].texts.length) {
