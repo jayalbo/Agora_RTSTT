@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Agora RTT - Audience</title>
+        <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+        <script src="/inc/protobuf.min.js"></script>
+        <script src="/inc/protobuf.js"></script>
+        <script src="../env"></script>
+        <!-- Get output langs from envvars -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <style>
+            .container {
+                max-width: 800px;
+                margin-top: 50px;
+            }
+            .output {
+                height: 100px;
+                background-color: #f8f9fa;
+                border: 1px solid #ced4da;
+                padding: 10px;
+                overflow-y: scroll;
+                /* allow multiline text */
+                white-space: pre-wrap;
+            }
+            .transcriptionClass {
+                margin-bottom: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="mb-4">Agora RTT & Translation Demo - Audience</h1>
+            <button class="btn btn-primary w-100 mb-3" onclick="joinSession()">
+                Join
+            </button>
+            <div class="mb-3">
+                <label for="status" class="form-label">Connection Status</label>
+                <div
+                    id="status"
+                    class="output"
+                    aria-label="Connection status"
+                ></div>
+            </div>
+            <div class="mb-3">
+                <label for="transcription" class="form-label"
+                    >Voice Transcription</label
+                >
+                <div
+                    id="transcription"
+                    class="output"
+                    aria-label="Voice transcription"
+                ></div>
+            </div>
+            <div class="mb-3">
+                <label for="translation" class="form-label">Translation</label>
+                <div
+                    id="translation"
+                    class="output"
+                    aria-label="Translation"
+                ></div>
+            </div>
+            <div class="mb-3">
+                <label for="translation2" class="form-label">Translation</label>
+                <div
+                    id="translation2"
+                    class="output"
+                    aria-label="Translation"
+                ></div>
+            </div>
+            <button
+                id="rttButton"
+                class="btn btn-primary w-100 mb-3"
+                onclick="toggleRTT()"
+                disabled
+            >
+                Start RTT & Translation
+            </button>
+        </div>
+        <script>
+            // Set the correct Labels
+            document.querySelector('label[for="translation"]').innerText =
+                `Translation → ${langOutput[0]}`;
+            document.querySelector('label[for="translation2"]').innerText =
+                `Translation → ${langOutput[1]}`;
+
+            // Create Agora Client
+            const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+            AgoraRTC.setLogLevel(4);
+            const AppID = "XXX"; // Replace with App ID
+            const channelName = "testRTSTT";
+            const token = null; // Replace with token if available
+            let isConnected = false;
+            let isRTTEnabled = false;
+            let RTTToken = "";
+            let taskId = "";
+            let currentTranscriptionIdx = 0;
+            let currentTranslationIdx = 0;
+            let currentTranslation2Idx = 0;
+
+            joinSession = async () => {
+                if (!isConnected) {
+                    // Disable button
+                    document.querySelector("button").disabled = true;
+                    document.getElementById("status").textContent =
+                        "Connecting...";
+                    try {
+                        await client.join(AppID, channelName, token, null);
+                        isConnected = true;
+                        // Enable RTT & Translation button
+                        document.querySelector("#rttButton").disabled = false;
+                        document.getElementById("status").textContent =
+                            "Connected!, User ID: " + client.uid + "\n";
+                        // Set button text to "Leave"
+                        document.querySelector("button").textContent = "Leave";
+                        // Enable button
+                        document.querySelector("button").disabled = false;
+
+                        // Add first line to the transcription & translation
+                        addLine("transcription");
+                        addLine("translation");
+                        addLine("translation2");
+                    } catch (error) {
+                        console.error("Failed to join the session:", error);
+                        document.getElementById("status").textContent =
+                            "Failed to connect";
+                        return;
+                    }
+                } else {
+                    // Leave the channel
+                    await client.leave();
+                    isConnected = false;
+                    document.getElementById("status").textContent =
+                        "Disconnected";
+                    // Set button text to "Join"
+                    document.querySelector("button").textContent = "Join";
+                    // Disable RTT & Translation button
+                    document.querySelector("#rttButton").disabled = true;
+                    document.querySelector("button:last-of-type").textContent =
+                        "Start RTT & Translation";
+                }
+            };
+            const toggleRTT = async () => {
+                const button = document.querySelector("button:last-of-type");
+                if (isRTTEnabled) {
+                    // Disable RTT & Translation
+                    isRTTEnabled = false;
+                    button.textContent = "Start RTT & Translation";
+
+                    // If token is available, send POST request to stop RTT
+                    if (RTTToken) {
+                        const request = await fetch("./api/stop", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                channelName,
+                                RTTToken,
+                                taskId,
+                            }),
+                        });
+                        const response = await request.json();
+                        // If response code is 200, stop RTT
+                        if (response.code === 200) {
+                            RTTToken = "";
+                            taskId = "";
+                        }
+                    }
+                } else {
+                    // Enable RTT & Translation
+                    isRTTEnabled = true;
+                    button.textContent = "Stop RTT & Translation";
+
+                    // Check if RTT User is already connected
+                    if (
+                        !client.remoteUsers.find((user) => user.uid === 100001)
+                    ) {
+                        // Send RTT POST request to the server
+                        const request = await fetch("./api/start", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                channelName,
+                            }),
+                        });
+                        const response = await request.json();
+                        // If response code is 200, start RTT
+                        RTTToken = response.message.token;
+                        taskId = response.message.result.taskId;
+                    } else {
+                        // User already connected
+                    }
+                }
+            };
+
+            // Event listeners
+            // Subscribe to the audio track
+            client.on("user-published", async (user, mediaType) => {
+                if (mediaType === "audio") {
+                    await client.subscribe(user, mediaType);
+                    const audioTrack = user.audioTrack;
+                    audioTrack.play();
+                    // Update connection status
+                    document.getElementById("status").textContent +=
+                        `Subscribed to user ${user.uid}\n`;
+                }
+            });
+            client.on("user-unpublished", (user, mediaType) => {
+                // Update connection status
+                document.getElementById("status").textContent +=
+                    `Unsubscribed from user ${user.uid}\n`;
+            });
+            client.on("stream-message", (msgUid, data) => {
+                if (!isRTTEnabled) return;
+                const msg = $protobufRoot.lookup("Text").decode(data) || {};
+
+                const { words, data_type, trans = [], duration_ms, uid } = msg;
+                console.log("Message from user " + msgUid, msg);
+                if (data_type == "transcribe") {
+                    if (words.length) {
+                        let isFinal = false;
+                        let text = "";
+                        words.forEach((item) => {
+                            if (item.isFinal) isFinal = true;
+
+                            text += item?.text;
+                        });
+                        document.querySelector(
+                            "#transcription_" + currentTranscriptionIdx,
+                        ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
+                        document.getElementById("transcription").scrollTop =
+                            document.getElementById(
+                                "transcription",
+                            ).scrollHeight;
+                        if (isFinal) addLine("transcription");
+                    }
+                } else if (data_type == "translate") {
+                    if (trans[0].texts.length) {
+                        let isFinal = false;
+                        let text = "";
+                        if (trans[0].lang == langOutput[0]) {
+                            trans[0].texts.forEach((item) => {
+                                text += item;
+                            });
+                            if (trans[0].isFinal) isFinal = true;
+                            document.querySelector(
+                                "#translation_" + currentTranslationIdx,
+                            ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
+                            document.getElementById("translation").scrollTop =
+                                document.getElementById(
+                                    "translation",
+                                ).scrollHeight;
+                            if (isFinal) addLine("translation");
+                        } else {
+                            trans[0].texts.forEach((item) => {
+                                text += item;
+                            });
+                            if (trans[0].isFinal) isFinal = true;
+                            document.querySelector(
+                                "#translation2_" + currentTranslation2Idx,
+                            ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
+                            document.getElementById("translation2").scrollTop =
+                                document.getElementById(
+                                    "translation2",
+                                ).scrollHeight;
+                            if (isFinal) addLine("translation2");
+                        }
+                    }
+                }
+            });
+            const addLine = (type) => {
+                const newDiv = document.createElement("div");
+                newDiv.id = `${type}_${type === "transcription" ? ++currentTranscriptionIdx : type === "translation" ? ++currentTranslationIdx : ++currentTranslation2Idx}`;
+                newDiv.className = `${type}Class`;
+                document.getElementById(type).appendChild(newDiv);
+            };
+        </script>
+    </body>
+</html>

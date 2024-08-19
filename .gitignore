@@ -1,0 +1,71 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Dependency directories
+/.pnp
+.pnp.js
+
+# Build output
+/dist
+/build
+/out
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Package files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Miscellaneous
+/.env
+/.env.local
+/.env.development.local
+/.env.test.local
+/.env.production.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore all .env files in the "config" directory
+/config/*.env
+
+# Ignore all log files in the "logs" directory
+/logs/*.log
+
+# Ignore all .bak files in the project
+*.bak

@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Agora RTT - Host</title>
+        <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <style>
+            .container {
+                max-width: 700px;
+                margin-top: 50px;
+            }
+            .output {
+                height: 100px;
+                background-color: #f8f9fa;
+                border: 1px solid #ced4da;
+                padding: 10px;
+                overflow-y: auto;
+                /* allow multiline text */
+                white-space: pre-wrap;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="mb-4">Agora RTT & Translation Demo - Host</h1>
+            <button class="btn btn-primary w-100 mb-3" onclick="joinSession()">
+                Join
+            </button>
+            <div class="mb-3">
+                <label for="status" class="form-label">Connection Status</label>
+                <div
+                    id="status"
+                    class="output"
+                    aria-label="Connection status"
+                ></div>
+            </div>
+        </div>
+        <script>
+            // Create Agora Client
+            const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+            const AppID = "xxxx"; // Replace with your App ID
+            const channelName = "testRTSTT";
+            const token = null; // Replace with your token if required
+            let audioTrack = null;
+            let isConnected = false;
+
+            joinSession = async () => {
+                if (!isConnected) {
+                    // Disable button
+                    document.querySelector("button").disabled = true;
+                    if (!audioTrack) {
+                        audioTrack =
+                            await AgoraRTC.createMicrophoneAudioTrack();
+                    }
+                    document.getElementById("status").textContent =
+                        "Connecting...";
+                    try {
+                        await client.join(AppID, channelName, token, null);
+                        isConnected = true;
+                        document.getElementById("status").textContent =
+                            "Connected!, User ID: " + client.uid;
+                        // Set button text to "Leave"
+                        document.querySelector("button").textContent = "Leave";
+                        // Enable button
+                        document.querySelector("button").disabled = false;
+                        try {
+                            // Publish the audio track to the channel
+                            await client.publish([audioTrack]);
+                            document.getElementById("status").textContent +=
+                                "\nPublished audio track";
+                        } catch (error) {
+                            document.getElementById("status").textContent +=
+                                "\nFailed to publish audio track";
+                        }
+                        return;
+                    } catch (error) {
+                        document.getElementById("status").textContent =
+                            "Failed to connect";
+                        console.error("Failed to join the session:", error);
+                        // Set button text to "Join"
+                        document.querySelector("button").textContent = "Join";
+                        // Enable button
+                        document.querySelector("button").disabled = false;
+                    }
+                } else {
+                    // Leave the channel
+                    await client.leave();
+                    isConnected = false;
+                    // Close the audio track
+                    audioTrack.close();
+                    audioTrack = null;
+                    document.getElementById("status").textContent =
+                        "Disconnected";
+                    // Set button text to "Join"
+                    document.querySelector("button").textContent = "Join";
+                }
+            };
+        </script>
+    </body>
+</html>
