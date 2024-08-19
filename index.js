@@ -13,6 +13,7 @@ const LANG_OUTPUT = process.env.LANG_OUTPUT
   ? process.env.LANG_OUTPUT.split(",")
   : ["en-US"];
 
+console.log(LANG_INPUT);
 console.log(LANG_OUTPUT);
 const basicAuth = Buffer.from(`${APP_KEY}:${APP_SECRET}`).toString("base64");
 
@@ -32,7 +33,7 @@ app.get("/audience", (req, res) => {
 // Envvars
 app.get("/env", (req, res) => {
   res.send(
-    `const langInput = "${LANG_INPUT}";
+    `const langInput = ["${LANG_INPUT.join('","')}"];
     const langOutput = ["${LANG_OUTPUT.join('","')}"];
     const APP_ID = "${APP_ID}";`,
   );
