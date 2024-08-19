@@ -54,15 +54,15 @@ var $protobufRoot = (
                 type: "Word",
                 id: 10,
               },
-              end_of_segment: {
+              endOfSegment: {
                 type: "bool",
                 id: 11,
               },
-              duration_ms: {
+              durationMs: {
                 type: "int32",
                 id: 12,
               },
-              data_type: {
+              dataType: {
                 type: "string",
                 id: 13,
               },
@@ -70,6 +70,14 @@ var $protobufRoot = (
                 rule: "repeated",
                 type: "Translation",
                 id: 14,
+              },
+              culture: {
+                type: "string",
+                id: 15,
+              },
+              textTs: {
+                type: "int64",
+                id: 16,
               },
             },
           },

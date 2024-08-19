@@ -219,9 +219,9 @@
                 if (!isRTTEnabled) return;
                 const msg = $protobufRoot.lookup("Text").decode(data) || {};
 
-                const { words, data_type, trans = [], duration_ms, uid } = msg;
+                const { words, dataType, trans = [], duration_ms, uid } = msg;
                 console.log("Message from user " + msgUid, msg);
-                if (data_type == "transcribe") {
+                if (dataType == "transcribe") {
                     if (words.length) {
                         let isFinal = false;
                         let text = "";
@@ -239,7 +239,7 @@
                             ).scrollHeight;
                         if (isFinal) addLine("transcription");
                     }
-                } else if (data_type == "translate") {
+                } else if (dataType == "translate") {
                     if (trans[0].texts.length) {
                         let isFinal = false;
                         let text = "";
