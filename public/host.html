@@ -22,6 +22,7 @@
                 white-space: pre-wrap;
             }
         </style>
+        <script src="../env"></script>
     </head>
     <body>
         <div class="container">
@@ -41,7 +42,7 @@
         <script>
             // Create Agora Client
             const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-            const AppID = "xxxx"; // Replace with your App ID
+            const AppID = APP_ID; // Replace with your App ID
             const channelName = "testRTSTT";
             const token = null; // Replace with your token if required
             let audioTrack = null;

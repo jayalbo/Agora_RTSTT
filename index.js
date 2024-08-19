@@ -33,7 +33,8 @@ app.get("/audience", (req, res) => {
 app.get("/env", (req, res) => {
   res.send(
     `const langInput = "${LANG_INPUT}";
-    const langOutput = ["${LANG_OUTPUT.join('","')}"];`,
+    const langOutput = ["${LANG_OUTPUT.join('","')}"];
+    const APP_ID = "${APP_ID}";`,
   );
 });
 
