@@ -245,7 +245,6 @@
                         let text = "";
                         words.forEach((item) => {
                             if (item.isFinal) isFinal = true;
-
                             text += item?.text;
                         });
                         document.querySelector(
@@ -259,33 +258,40 @@
                     } */
                     if (words.length) {
                         let isFinal = false;
-                        let text = "";
+                        let textOutput = "";
+                        let i=0;
                         if (culture == langInput[0]) {
                             words.forEach((item) => {
-                                text += item;
+                                textOutput += words[i].text;
+                                console.log("langinput[0] " + words[i].isFinal);
+                                i++;
                             });
                             if (words[0].isFinal) isFinal = true;
+                            console.log("logging langInput[0] textOutput = " + textOutput);
                             document.querySelector(
                                 "#transcription_" + currentTranscriptionIdx,
-                            ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
-                            document.getElementById("transcription_").scrollTop =
+                            ).innerHTML = `<strong>[${uid}]</strong> ${textOutput}`;
+                            document.getElementById("transcription").scrollTop =
                                 document.getElementById(
-                                    "transcription_",
+                                    "transcription",
                                 ).scrollHeight;
-                            if (isFinal) addLine("transcription_");
+                            if (isFinal) addLine("transcription");
                         } else {
                             words.forEach((item) => {
-                                text += item;
+                                textOutput += words[i].text;
+                                console.log("else statement " + words[i].isFinal);
+                                i++;
                             });
                             if (words[0].isFinal) isFinal = true;
+                            console.log("logging langInput[1] textOutput = " + textOutput);
                             document.querySelector(
                                 "#transcription2_" + currentTranscription2Idx,
-                            ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
+                            ).innerHTML = `<strong>[${uid}]</strong> ${textOutput}`;
                             document.getElementById("transcription2").scrollTop =
                                 document.getElementById(
                                     "transcription2",
                                 ).scrollHeight;
-                            if (isFinal) addLine("transcription2_");
+                            if (isFinal) addLine("transcription2");
                         }
                     }
                 } else if (dataType == "translate") {
