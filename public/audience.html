@@ -259,15 +259,11 @@
                     if (words.length) {
                         let isFinal = false;
                         let text = "";
-                        let i=0;
                         if (culture == langInput[0]) {
                             words.forEach((item) => {
                                 text += item?.text;
-                                console.log("langinput[0] " + words[i].isFinal);
-                                i++;
                             });
                             if (words[0].isFinal) isFinal = true;
-                            console.log("logging langInput[0] text = " + text);
                             document.querySelector(
                                 "#transcription_" + currentTranscriptionIdx,
                             ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
@@ -279,11 +275,9 @@
                         } else {
                             words.forEach((item) => {
                                 text += item?.text;
-                                console.log("else statement " + words[i].isFinal);
-                                i++;
+                                console.log("else statement " + words[0].isFinal);
                             });
                             if (words[0].isFinal) isFinal = true;
-                            console.log("logging langInput[1] text = " + text);
                             document.querySelector(
                                 "#transcription2_" + currentTranscription2Idx,
                             ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
@@ -330,7 +324,7 @@
             });
             const addLine = (type) => {
                 const newDiv = document.createElement("div");
-                newDiv.id = `${type}_${type === "transcription" ? ++currentTranscriptionIdx : type === "translation" ? ++currentTranslationIdx : ++currentTranslation2Idx}`;
+                newDiv.id = `${type}_${type === "transcription" ? ++currentTranscriptionIdx : type == "transcription2" ? ++currentTranscription2Idx : type === "translation" ? ++currentTranslationIdx : ++currentTranslation2Idx}`;
                 newDiv.className = `${type}Class`;
                 document.getElementById(type).appendChild(newDiv);
             };
