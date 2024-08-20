@@ -103,9 +103,9 @@
 
             // Create Agora Client
             const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-            AgoraRTC.setLogLevel(4);
+            AgoraRTC.setLogLevel(0);
             const AppID = APP_ID; // Replace with App ID
-            const channelName = "testRTSTT";
+            const channelName = CHANNEL;
             const token = null; // Replace with token if available
             let isConnected = false;
             let isRTTEnabled = false;
@@ -236,8 +236,15 @@
                 if (!isRTTEnabled) return;
                 const msg = $protobufRoot.lookup("Text").decode(data) || {};
 
-                const { words, dataType, trans = [], culture, duration_ms, uid } = msg;
-                console.log("Message from user " + msgUid, msg);
+                const {
+                    words,
+                    dataType,
+                    trans = [],
+                    culture,
+                    duration_ms,
+                    uid,
+                } = msg;
+                // console.log("Message from user " + msgUid, msg);
                 if (dataType == "transcribe") {
                     /* This is the old transcription for 1 language
                     if (length) {
@@ -263,7 +270,8 @@
                             words.forEach((item) => {
                                 text += item?.text;
                             });
-                            if (words[0].isFinal) isFinal = true;
+                            isFinal = words[0].isFinal || false;
+                            if (isFinal) console.log("Final", text);
                             document.querySelector(
                                 "#transcription_" + currentTranscriptionIdx,
                             ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
@@ -275,13 +283,15 @@
                         } else {
                             words.forEach((item) => {
                                 text += item?.text;
-                                console.log("else statement " + words[0].isFinal);
                             });
-                            if (words[0].isFinal) isFinal = true;
+                            isFinal = words[0].isFinal || false;
+                            if (isFinal) console.log("Final", text);
                             document.querySelector(
                                 "#transcription2_" + currentTranscription2Idx,
                             ).innerHTML = `<strong>[${uid}]</strong> ${text}`;
-                            document.getElementById("transcription2").scrollTop =
+                            document.getElementById(
+                                "transcription2",
+                            ).scrollTop =
                                 document.getElementById(
                                     "transcription2",
                                 ).scrollHeight;

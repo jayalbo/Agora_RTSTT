@@ -12,7 +12,9 @@ const LANG_INPUT = process.env.LANG_INPUT
 const LANG_OUTPUT = process.env.LANG_OUTPUT
   ? process.env.LANG_OUTPUT.split(",")
   : ["en-US"];
-
+const CHANNEL = process.env.CHANNEL;
+const RTSTT_AUDIENCE_UID = process.env.RTSTT_AUDIENCE_UID;
+const RTSTT_HOST_UID = process.env.RTSTT_HOST_UID;
 console.log(LANG_INPUT);
 console.log(LANG_OUTPUT);
 const basicAuth = Buffer.from(`${APP_KEY}:${APP_SECRET}`).toString("base64");
@@ -33,9 +35,11 @@ app.get("/audience", (req, res) => {
 // Envvars
 app.get("/env", (req, res) => {
   res.send(
-    `const langInput = ["${LANG_INPUT.join('","')}"];
-    const langOutput = ["${LANG_OUTPUT.join('","')}"];
-    const APP_ID = "${APP_ID}";`,
+    ` const langInput = ["${LANG_INPUT.join('","')}"];
+      const langOutput = ["${LANG_OUTPUT.join('","')}"];
+      const APP_ID = "${APP_ID}";
+      const CHANNEL = "${CHANNEL}";
+      `,
   );
 });
 
@@ -77,10 +81,10 @@ app.post("/api/start", async (req, res) => {
         maxIdleTime: 30,
         rtcConfig: {
           channelName: CHANNEL_NAME,
-          subBotUid: "1000",
-          // subBotToken: null,
-          pubBotUid: "1001",
-          // pubBotToken: null,
+          subBotUid: RTSTT_AUDIENCE_UID,
+          // subBotToken: null, // Optional
+          pubBotUid: RTSTT_HOST_UID,
+          // pubBotToken: null, // Optional
         },
         translateConfig: {
           languages: [
@@ -91,45 +95,6 @@ app.post("/api/start", async (req, res) => {
           ],
         },
       },
-
-      // data: {
-      //   audio: {
-      //     subscribeSource: "AGORARTC",
-      //     agoraRtcConfig: {
-      //       channelName: CHANNEL_NAME,
-      //       uid: "10000",
-      //       channelType: "LIVE_TYPE",
-      //       subscribeConfig: {
-      //         subscribeMode: "CHANNEL_MODE",
-      //       },
-      //       maxIdleTime: 10,
-      //     },
-      //   },
-      //   config: {
-      //     features: ["RECOGNIZE"],
-      //     recognizeConfig: {
-      //       language: LANG_INPUT,
-      //       model: "Model",
-      //       profanityFilter: true,
-      //       connectionTimeout: 60,
-      //       output: {
-      //         destinations: ["AgoraRTCDataStream"],
-      //         agoraRTCDataStream: {
-      //           channelName: CHANNEL_NAME,
-      //           uid: "100001",
-      //         },
-      //       },
-      //     },
-      //     translateConfig: {
-      //       languages: [
-      //         {
-      //           source: LANG_INPUT,
-      //           target: LANG_OUTPUT,
-      //         },
-      //       ],
-      //     },
-      //   },
-      // },
     });
 
     if (startResponse.status !== 200) {
