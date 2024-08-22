@@ -12,7 +12,7 @@ This is a simple demo of Agora Speech to Text SDK. It demonstrates how to use th
 
 1. Clone the repository to your local machine.
 2. Install the dependencies by running `npm install`.
-3. Copy the `.env.example` file to `.env` and fill in the `APP_ID`, `APP_KEY`, and `APP_SECRET` with your own values and set `LANG_INPUT` and `LANG_OUTPUT` to the language you want to transcribe from and to respectively.
+3. Copy the `.env.example` file to `.env` and fill in the `APP_ID`, `APP_KEY` (Customer Id), and `APP_SECRET` (Customer Secret) with your own values and set `LANG_INPUT` and `LANG_OUTPUT` to the language you want to transcribe from and to respectively.
 4. Set appId in `public/audience.html` and `public/host.html` to your own Agora App ID.
 5. Set Agora RTC Token in `public/audience.html` and `public/host.html` to your own Agora RTC Token (if required)
 6. Run the application by running `npm start`.
@@ -24,3 +24,4 @@ This is a simple demo of Agora Speech to Text SDK. It demonstrates how to use th
 
 - Supported languages - https://docs.agora.io/en/real-time-stt/develop/supported-languages
 - API Reference - https://docs.agora.io/en/real-time-stt/get-started/quickstart
+- Customer Id & Customer Secret - https://console.agora.io/restfulApi
