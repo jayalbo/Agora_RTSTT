@@ -39,6 +39,8 @@ app.get("/env", (req, res) => {
       const langOutput = ["${LANG_OUTPUT.join('","')}"];
       const APP_ID = "${APP_ID}";
       const CHANNEL = "${CHANNEL}";
+      const RTSTT_AUDIENCE_UID = "${RTSTT_AUDIENCE_UID}";
+      const RTSTT_HOST_UID = "${RTSTT_HOST_UID}";
       `,
   );
 });

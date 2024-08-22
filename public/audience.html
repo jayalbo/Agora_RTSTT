@@ -193,7 +193,9 @@
 
                     // Check if RTT User is already connected
                     if (
-                        !client.remoteUsers.find((user) => user.uid === 100001)
+                        !client.remoteUsers.find(
+                            (user) => user.uid === parseInt(RTSTT_HOST_UID),
+                        )
                     ) {
                         // Send RTT POST request to the server
                         const request = await fetch("./api/start", {
@@ -205,12 +207,14 @@
                                 channelName,
                             }),
                         });
+
                         const response = await request.json();
                         // If response code is 200, start RTT
                         RTTToken = response.message.token;
                         taskId = response.message.result.taskId;
                     } else {
                         // User already connected
+                        console.log("RTT was previously activated");
                     }
                 }
             };
